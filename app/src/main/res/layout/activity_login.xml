@@ -3,18 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity"
-    android:orientation="vertical">
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/id"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/kakao_login_btn"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="회원번호"/>
-    <TextView
-        android:id="@+id/nickname"
+        android:src="@drawable/kakao_login_medium_narrow"
+        android:background="@android:color/transparent" />
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/google_login_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="닉네임"/>
+        android:layout_height="wrap_content"/>
+
+
+
 
 </LinearLayout>
