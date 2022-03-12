@@ -62,4 +62,9 @@ dependencies {
     implementation "com.kakao.sdk:v2-user:2.8.4"
     //google login
     implementation 'com.google.android.gms:play-services-auth:20.0.1'
+
+    //retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 }
