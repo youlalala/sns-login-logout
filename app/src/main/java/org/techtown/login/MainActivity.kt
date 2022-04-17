@@ -23,9 +23,12 @@ import com.kakao.sdk.common.model.KakaoSdkError
 import com.kakao.sdk.user.UserApiClient
 import org.techtown.login.MySharedPreferences.clearTOKEN
 import org.techtown.login.databinding.ActivityMainBinding
+import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Url
 import java.net.URI
 import java.net.URL
+import javax.security.auth.callback.Callback
 
 //로그인 성공시 보이는 화면
 class MainActivity : AppCompatActivity() {
@@ -40,9 +43,12 @@ class MainActivity : AppCompatActivity() {
 
 
         val method = MySharedPreferences.getMethod(this)
+        val token = MySharedPreferences.getToken(this)
         Log.i("sss", "method "+method)
+        Log.i("SSS",token)
         if (method == "kakao") {
             val token = MySharedPreferences.getToken(this)
+
             // 사용자 정보 요청 (기본)
             if(token != null){
                 UserApiClient.instance.me { user, error ->
@@ -75,8 +81,10 @@ class MainActivity : AppCompatActivity() {
             mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
             val acct = GoogleSignIn.getLastSignedInAccount(this)
-            if(acct != null)
+            if(acct != null) {
                 binding.email.text = acct?.email
+                binding.name.text = acct?.givenName
+            }
             else{
                 Log.d("sss", "사용자 정보 요청 실패")
                 val intent= Intent(this, LoginActivity::class.java)

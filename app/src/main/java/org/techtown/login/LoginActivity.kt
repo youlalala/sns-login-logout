@@ -1,8 +1,5 @@
 package org.techtown.login
 
-import android.app.Activity
-import android.app.PendingIntent.getActivity
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -12,19 +9,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import org.techtown.login.databinding.ActivityLoginBinding
-import retrofit2.Call
-import retrofit2.Response
-import javax.security.auth.callback.Callback
+import org.techtown.login.network.ApiWrapper
+import org.techtown.login.network.LoginModel
 
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,24 +31,20 @@ class LoginActivity : AppCompatActivity() {
                 Log.d("sss", "로그인 실패", error)
             } else if (token != null) {
                 //Login Success
-                //kakaoTokenSend(token)
 
-//                val modelCall = NetWorkService.api.requestLogin(token)
-//                modelCall.enqueue(object : Callback<LoginModel> {
-//                    override fun onResponse(
-//                        call: Call<LoginModel>,
-//                        response: Response<LoginModel>
-//                    ) {
-//                        val list = response.body()
-//                    }
-//                    override fun onFailure(call: Call<LoginModel>, t: Throwable) {
-//                        modelCall.cancel()
-//                    }
-//                })
+                MySharedPreferences.setToken(this, token.accessToken)
+                MySharedPreferences.setMethod(this, "kakao")
 
-                MySharedPreferences.setToken(this,token.accessToken)
-                MySharedPreferences.setMethod(this,"kakao")
+                val userInfo = LoginModel(
+                    token= MySharedPreferences.getToken(this)
+                )
 
+                Log.i("sss","userInfo : "+userInfo)
+
+                ApiWrapper.postToken(userInfo){
+                }
+
+                Log.i("SSS","로그인성공")
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
@@ -96,41 +86,75 @@ class LoginActivity : AppCompatActivity() {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == 1) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }
-    }
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        try {
-            val account = completedTask.getResult(ApiException::class.java)
-            val email = account.email
-            Log.d("sss", email.toString())
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            try {
+                // The Task returned from this call is always completed, no need to attach
+                // a listener.
+                val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+                val account = task.getResult(ApiException::class.java)
+                Log.i("SSS","account"+account.toString())
+                MySharedPreferences.setToken(this, account.idToken!!)
+                MySharedPreferences.setMethod(this, "google")
+                val userInfo = LoginModel(
+                    token= MySharedPreferences.getToken(this)
+                )
 
-        } catch (e: ApiException) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.i("SSS", "signInResult:failed code=" + e.statusCode)
-        }
-    }
+                Log.i("sss","userInfo : "+userInfo)
 
-    override fun onStart() {
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        super.onStart()
-        val account = GoogleSignIn.getLastSignedInAccount(this)
+                ApiWrapper.postToken(userInfo){
+                }
+                Log.i("SSS","구글 로그인 성공")
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }catch(e: ApiException){
+                Log.i("SSS","구글 로그인 실패:"+e)
+            }
 
-        if(account!=null) {
-            Log.d("sss", "already signed in")
-        }else{
-            Log.d("sss", "no account")
         }
     }
 
+
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+//        if (requestCode == 1) {
+//            // The Task returned from this call is always completed, no need to attach
+//            // a listener.
+//            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+//            handleSignInResult(task)
+//        }
+//    }
+//    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+//        try {
+//            val account = completedTask.getResult(ApiException::class.java)
+//            val name= account.givenName
+//            val email = account.email
+//            Log.d("sss", name.toString())
+//            val intent = Intent(this, MainActivity::class.java)
+//            startActivity(intent)
+//
+//        } catch (e: ApiException) {
+//            // The ApiException status code indicates the detailed failure reason.
+//            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+//            Log.i("SSS", "signInResult:failed code=" + e.statusCode)
+//        }
+//    }
+//
+//    override fun onStart() {
+//        // Check for existing Google Sign In account, if the user is already signed in
+//        // the GoogleSignInAccount will be non-null.
+//        super.onStart()
+//        val account = GoogleSignIn.getLastSignedInAccount(this)
+//
+//        if(account!=null) {
+//            Log.d("sss", "already signed in")
+//        }else{
+//            Log.d("sss", "no account")
+//        }
+//    }
 
 }
+
 
 
